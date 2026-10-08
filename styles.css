@@ -61,6 +61,7 @@ body.hide-sidebars-soft-overlay {
 */
 body.hide-sidebars-soft-overlay .hide-sidebars-overlay-left,
 body.hide-sidebars-soft-overlay .hide-sidebars-overlay-right {
+  --background-primary: transparent;
   --background-secondary: transparent;
   --background-secondary-alt: transparent;
   --tab-container-background: transparent;
@@ -69,6 +70,13 @@ body.hide-sidebars-soft-overlay .hide-sidebars-overlay-right {
   /* No hard edges: Cupertino's sidebars have no dividers either. */
   --divider-color: transparent;
   --tab-outline-color: transparent;
+  /*
+     Plugins that resolve their own colour variables on <body> are not reached
+     by the overrides above and need their variables cleared directly.
+     Notebook Navigator: navigation pane and file list backgrounds.
+  */
+  --nn-theme-nav-bg: transparent;
+  --nn-theme-list-bg: transparent;
 }
 
 /* The sidebar/editor divider is drawn by the resize handle, not the split. */
