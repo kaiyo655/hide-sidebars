@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Frosted overlay setting: floating sidebars get a semi-transparent, blurred background.
+- Overlay style setting: *Soft edge* option, inspired by the Cupertino theme's hover sidebar (gradient fade into the editor, slide-in animation).
 - Reveal delay setting: the mouse must stay at the screen edge for the configured time before a sidebar appears.
 
 ### Fixed

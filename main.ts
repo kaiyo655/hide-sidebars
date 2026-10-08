@@ -5,6 +5,7 @@ import {
 	DEFAULT_SETTINGS,
 	HideSidebarsSettings,
 	MIN_VERTICAL_TRIGGER_HEIGHT,
+	OverlayStyle,
 	SidebarSide,
 	THROTTLE_MS,
 } from './src/types';
@@ -21,7 +22,7 @@ export default class HideSidebarsPlugin extends Plugin {
 	async onload(): Promise<void> {
 		await this.loadSettings();
 		this.lastMouseMoveTime = 0;
-		this.syncFrostedOverlay();
+		this.syncOverlayStyle();
 
 		this.app.workspace.onLayoutReady(() => {
 			this.initControllers();
@@ -66,7 +67,7 @@ export default class HideSidebarsPlugin extends Plugin {
 	}
 
 	onunload(): void {
-		activeDocument.body.classList.remove('hide-sidebars-frosted');
+		activeDocument.body.classList.remove('hide-sidebars-soft-overlay');
 		this.leftController?.cleanup();
 		this.rightController?.cleanup();
 	}
@@ -230,15 +231,17 @@ export default class HideSidebarsPlugin extends Plugin {
 		}
 	}
 
-	async setFrostedOverlay(value: boolean): Promise<void> {
-		this.settings.frostedOverlay = value;
+	async setOverlayStyle(value: OverlayStyle): Promise<void> {
+		this.settings.overlayStyle = value;
 		await this.saveSettings();
-		this.syncFrostedOverlay();
+		this.syncOverlayStyle();
+		this.leftController?.refreshOverlayLayout();
+		this.rightController?.refreshOverlayLayout();
 	}
 
-	/** Frosted overlay is pure CSS, switched by a body class. */
-	syncFrostedOverlay(): void {
-		activeDocument.body.classList.toggle('hide-sidebars-frosted', this.settings.frostedOverlay);
+	/** Overlay style is mostly CSS, switched by a body class. */
+	syncOverlayStyle(): void {
+		activeDocument.body.classList.toggle('hide-sidebars-soft-overlay', this.settings.overlayStyle === 'soft');
 	}
 
 	async setSideEnabled(side: SidebarSide, value: boolean): Promise<void> {
@@ -266,6 +269,11 @@ export default class HideSidebarsPlugin extends Plugin {
 		const loadedData: unknown = await this.loadData();
 		const loadedSettings = this.isSettingsObject(loadedData) ? loadedData : {};
 		this.settings = { ...DEFAULT_SETTINGS, ...loadedSettings };
+		if (this.settings.overlayStyle !== 'solid' && this.settings.overlayStyle !== 'soft') {
+			this.settings.overlayStyle = DEFAULT_SETTINGS.overlayStyle;
+		}
+		// Drop the short-lived "frosted overlay" option from earlier test builds.
+		delete (this.settings as HideSidebarsSettings & { frostedOverlay?: unknown }).frostedOverlay;
 	}
 
 	async saveSettings(): Promise<void> {

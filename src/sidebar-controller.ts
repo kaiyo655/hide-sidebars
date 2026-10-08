@@ -301,6 +301,8 @@ export class SidebarController {
 			right: this.side === 'right' ? offset : '',
 			height: 'auto',
 			zIndex: String(this.getOverlayZIndex(parent)),
+			// Soft edge style paints a gradient wider than the sidebar; let it overflow.
+			overflow: this.settings.overlayStyle === 'soft' ? 'visible' : '',
 		});
 	}
 
@@ -321,6 +323,7 @@ export class SidebarController {
 			right: '',
 			height: '',
 			zIndex: '',
+			overflow: '',
 		});
 
 		const parent = this.containerEl.parentElement;

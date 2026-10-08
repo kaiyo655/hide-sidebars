@@ -1,6 +1,6 @@
 import { App, PluginSettingTab, Setting } from 'obsidian';
 import type HideSidebarsPlugin from '../main';
-import { MAX_DELAY_MS, MAX_REVEAL_DELAY_MS } from './types';
+import { MAX_DELAY_MS, MAX_REVEAL_DELAY_MS, OverlayStyle } from './types';
 
 type SidebarSettingSide = 'left' | 'right';
 
@@ -37,12 +37,14 @@ export class HideSidebarsSettingTab extends PluginSettingTab {
 				}));
 
 		new Setting(containerEl)
-			.setName('Frosted overlay')
-			.setDesc('In overlay mode, give the floating sidebar a semi-transparent, blurred background instead of a solid one.')
-			.addToggle((toggle) => toggle
-				.setValue(this.plugin.settings.frostedOverlay)
+			.setName('Overlay style')
+			.setDesc('Solid: opaque sidebar with a drop shadow. Soft edge: the sidebar fades into the editor and slides in from the edge.')
+			.addDropdown((dropdown) => dropdown
+				.addOption('solid', 'Solid')
+				.addOption('soft', 'Soft edge')
+				.setValue(this.plugin.settings.overlayStyle)
 				.onChange(async (value) => {
-					await this.plugin.setFrostedOverlay(value);
+					await this.plugin.setOverlayStyle(value as OverlayStyle);
 				}));
 
 		new Setting(containerEl)
