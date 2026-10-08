@@ -98,8 +98,6 @@ body.hide-sidebars-soft-overlay .hide-sidebars-overlay-right {
 body.hide-sidebars-soft-overlay .hide-sidebars-overlay-left::before,
 body.hide-sidebars-soft-overlay .hide-sidebars-overlay-right::before {
   width: 150%;
-  /* Start below the tab bar so the overhang does not paint over the main tab bar. */
-  top: var(--hide-sidebars-header-height, 0px);
 }
 
 body.hide-sidebars-soft-overlay .hide-sidebars-overlay-left::before {
@@ -120,21 +118,6 @@ body.hide-sidebars-soft-overlay .hide-sidebars-overlay-left.hide-sidebars-hidden
 
 body.hide-sidebars-soft-overlay .hide-sidebars-overlay-right.hide-sidebars-hidden {
   transform: translateX(24px);
-}
-
-/*
-   Top tab bar of a floating sidebar uses the same background as the main
-   area's tab bar, so it lines up with themes that frame the editor.
-   The colour is resolved on <body>, before the soft edge style clears the
-   background variables inside the sidebar.
-*/
-body {
-  --hide-sidebars-tab-bar-background: var(--titlebar-background, var(--background-secondary));
-}
-
-.hide-sidebars-overlay-left .workspace-tabs.mod-top .workspace-tab-header-container,
-.hide-sidebars-overlay-right .workspace-tabs.mod-top .workspace-tab-header-container {
-  background-color: var(--hide-sidebars-tab-bar-background);
 }
 
 /* Ribbons always visible on top */

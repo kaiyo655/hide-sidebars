@@ -10,7 +10,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Overlay style setting: *Soft edge* option, inspired by the Cupertino theme's hover sidebar (gradient fade into the editor, slide-in animation).
-- Overlay mode: the floating sidebar's top tab bar uses the main tab bar background, so it lines up with themes that frame the editor.
 - Reveal delay setting: the mouse must stay at the screen edge for the configured time before a sidebar appears.
 
 ### Fixed
