@@ -66,6 +66,15 @@ body.hide-sidebars-soft-overlay .hide-sidebars-overlay-right {
   --tab-container-background: transparent;
   --titlebar-background: transparent;
   --titlebar-background-focused: transparent;
+  /* No hard edges: Cupertino's sidebars have no dividers either. */
+  --divider-color: transparent;
+  --tab-outline-color: transparent;
+}
+
+/* The sidebar/editor divider is drawn by the resize handle, not the split. */
+body.hide-sidebars-soft-overlay .hide-sidebars-overlay-left > .workspace-leaf-resize-handle,
+body.hide-sidebars-soft-overlay .hide-sidebars-overlay-right > .workspace-leaf-resize-handle {
+  border-color: transparent;
 }
 
 body.hide-sidebars-soft-overlay .hide-sidebars-overlay-left,
