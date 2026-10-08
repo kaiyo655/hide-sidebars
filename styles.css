@@ -49,6 +49,23 @@
 body.hide-sidebars-soft-overlay {
   --hide-sidebars-soft-duration: 320ms;
   --hide-sidebars-soft-easing: cubic-bezier(0.32, 0.72, 0, 1);
+  /* Resolved here on <body>, before the sidebar overrides the background variables below. */
+  --hide-sidebars-soft-background: var(--background-primary);
+}
+
+/*
+   The gradient backdrop is only visible if the sidebar's own panels are
+   transparent (as they are in Cupertino). Obsidian and most themes/plugins
+   paint sidebar panels through these variables, so clear them inside the
+   floating sidebar only.
+*/
+body.hide-sidebars-soft-overlay .hide-sidebars-overlay-left,
+body.hide-sidebars-soft-overlay .hide-sidebars-overlay-right {
+  --background-secondary: transparent;
+  --background-secondary-alt: transparent;
+  --tab-container-background: transparent;
+  --titlebar-background: transparent;
+  --titlebar-background-focused: transparent;
 }
 
 body.hide-sidebars-soft-overlay .hide-sidebars-overlay-left,
@@ -69,13 +86,13 @@ body.hide-sidebars-soft-overlay .hide-sidebars-overlay-right::before {
 body.hide-sidebars-soft-overlay .hide-sidebars-overlay-left::before {
   right: auto;
   left: 0;
-  background: linear-gradient(to right, var(--background-primary) 50%, transparent);
+  background: linear-gradient(to right, var(--hide-sidebars-soft-background) 50%, transparent);
 }
 
 body.hide-sidebars-soft-overlay .hide-sidebars-overlay-right::before {
   right: 0;
   left: auto;
-  background: linear-gradient(to left, var(--background-primary) 50%, transparent);
+  background: linear-gradient(to left, var(--hide-sidebars-soft-background) 50%, transparent);
 }
 
 body.hide-sidebars-soft-overlay .hide-sidebars-overlay-left.hide-sidebars-hidden {
