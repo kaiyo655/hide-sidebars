@@ -37,6 +37,15 @@ export class HideSidebarsSettingTab extends PluginSettingTab {
 				}));
 
 		new Setting(containerEl)
+			.setName('Frosted overlay')
+			.setDesc('In overlay mode, give the floating sidebar a semi-transparent, blurred background instead of a solid one.')
+			.addToggle((toggle) => toggle
+				.setValue(this.plugin.settings.frostedOverlay)
+				.onChange(async (value) => {
+					await this.plugin.setFrostedOverlay(value);
+				}));
+
+		new Setting(containerEl)
 			.setName('Show notifications')
 			.setDesc('Show notification popups when switching between auto-hide and always show modes.')
 			.addToggle((toggle) => toggle

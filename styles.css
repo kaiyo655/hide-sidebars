@@ -39,6 +39,29 @@
   pointer-events: none;
 }
 
+/*
+   Frosted overlay (optional setting)
+   backdrop-filter sits on the split itself (Obsidian only forces its
+   background-color, not filters); the ::before tint becomes semi-transparent
+   so the blurred editor shows through. Tune with the two variables below,
+   e.g. from a CSS snippet.
+*/
+body.hide-sidebars-frosted {
+  --hide-sidebars-frost-blur: 24px;
+  --hide-sidebars-frost-opacity: 0.6;
+}
+
+body.hide-sidebars-frosted .hide-sidebars-overlay-left,
+body.hide-sidebars-frosted .hide-sidebars-overlay-right {
+  -webkit-backdrop-filter: blur(var(--hide-sidebars-frost-blur)) saturate(1.5);
+  backdrop-filter: blur(var(--hide-sidebars-frost-blur)) saturate(1.5);
+}
+
+body.hide-sidebars-frosted .hide-sidebars-overlay-left::before,
+body.hide-sidebars-frosted .hide-sidebars-overlay-right::before {
+  opacity: var(--hide-sidebars-frost-opacity);
+}
+
 /* Ribbons always visible on top */
 .hide-sidebars-autohide ~ .workspace-ribbon.mod-left,
 .hide-sidebars-autohide ~ .workspace-ribbon.mod-right {

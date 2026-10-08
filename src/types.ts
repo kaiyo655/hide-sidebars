@@ -10,6 +10,7 @@ export interface HideSidebarsSettings {
 	leftTriggerPadding: number;
 	rightTriggerPadding: number;
 	overlayMode: boolean;
+	frostedOverlay: boolean;
 	delay: number;
 	revealDelay: number;
 	showNotifications: boolean;
@@ -33,6 +34,7 @@ export const DEFAULT_SETTINGS: HideSidebarsSettings = {
 	leftTriggerPadding: 100,
 	rightTriggerPadding: 100,
 	overlayMode: false,
+	frostedOverlay: false,
 	delay: 50,
 	revealDelay: 0,
 	showNotifications: false,

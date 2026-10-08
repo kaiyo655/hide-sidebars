@@ -21,6 +21,7 @@ export default class HideSidebarsPlugin extends Plugin {
 	async onload(): Promise<void> {
 		await this.loadSettings();
 		this.lastMouseMoveTime = 0;
+		this.syncFrostedOverlay();
 
 		this.app.workspace.onLayoutReady(() => {
 			this.initControllers();
@@ -65,6 +66,7 @@ export default class HideSidebarsPlugin extends Plugin {
 	}
 
 	onunload(): void {
+		activeDocument.body.classList.remove('hide-sidebars-frosted');
 		this.leftController?.cleanup();
 		this.rightController?.cleanup();
 	}
@@ -226,6 +228,17 @@ export default class HideSidebarsPlugin extends Plugin {
 		if (this.settings.showNotifications) {
 			new Notice(`Overlay mode: ${this.settings.overlayMode ? 'on' : 'off'}`);
 		}
+	}
+
+	async setFrostedOverlay(value: boolean): Promise<void> {
+		this.settings.frostedOverlay = value;
+		await this.saveSettings();
+		this.syncFrostedOverlay();
+	}
+
+	/** Frosted overlay is pure CSS, switched by a body class. */
+	syncFrostedOverlay(): void {
+		activeDocument.body.classList.toggle('hide-sidebars-frosted', this.settings.frostedOverlay);
 	}
 
 	async setSideEnabled(side: SidebarSide, value: boolean): Promise<void> {

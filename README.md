@@ -53,6 +53,7 @@ The command palette also includes:
 ## Settings
 
 - **Overlay mode**: Float sidebars over the editor instead of pushing content aside.
+- **Frosted overlay**: Give floating sidebars a semi-transparent, blurred background. Blur and tint strength can be tuned with the CSS variables `--hide-sidebars-frost-blur` and `--hide-sidebars-frost-opacity`.
 - **Show notifications**: Show a short notice when changing sidebar modes.
 - **Reveal delay**: How long the mouse must stay at the screen edge before a sidebar appears.
 - **Transition delay**: Delay before a sidebar collapses after the mouse leaves.
