@@ -1,45 +1,39 @@
-/* Hide Sidebars Plugin v1.0.0 */
+/* Hide Sidebars Plugin */
 
 /*
    Overlay Mode
    position: absolute floats the sidebar over content.
-   pointer-events: none on container, auto on children for click-through.
+   Selectors repeat Obsidian's own `.workspace-split.mod-*-split` classes so they
+   win over the core layout rules without needing !important.
+   Do NOT change the position of the split's children: the resize handle is
+   absolutely positioned by Obsidian, and turning it into a normal block pushes
+   the sidebar content down to the lower half of the window.
 */
-.hide-sidebars-overlay-left {
-  position: absolute;
-  left: var(--ribbon-width, 40px);
-  top: 0;
-  bottom: 0;
-  z-index: 10;
-  box-shadow: 2px 0 20px var(--background-modifier-box-shadow, rgba(0, 0, 0, 0.3));
-  height: 100%;
-  pointer-events: none;
-}
-
-.hide-sidebars-overlay-left > * {
-  pointer-events: auto;
-}
-
-.hide-sidebars-overlay-right {
-  position: absolute;
-  right: 0;
-  top: 0;
-  bottom: 0;
-  z-index: 10;
-  box-shadow: -2px 0 20px var(--background-modifier-box-shadow, rgba(0, 0, 0, 0.3));
-  height: 100%;
-  pointer-events: none;
-}
-
-.hide-sidebars-overlay-right > * {
-  pointer-events: auto;
-}
-
-/* Content inside overlay sidebars above main content */
-.hide-sidebars-overlay-left > *,
-.hide-sidebars-overlay-right > * {
+.workspace:has(> .hide-sidebars-overlay-left),
+.workspace:has(> .hide-sidebars-overlay-right) {
   position: relative;
-  z-index: 50;
+}
+
+.workspace-split.mod-left-split.hide-sidebars-overlay-left {
+  position: absolute;
+  left: var(--hide-sidebars-offset, 0px);
+  top: 0;
+  bottom: 0;
+  height: auto;
+  z-index: 30;
+  background-color: var(--background-secondary);
+  box-shadow: 2px 0 20px var(--background-modifier-box-shadow, rgba(0, 0, 0, 0.3));
+}
+
+.workspace-split.mod-right-split.hide-sidebars-overlay-right {
+  position: absolute;
+  right: var(--hide-sidebars-offset, 0px);
+  top: 0;
+  bottom: 0;
+  height: auto;
+  z-index: 30;
+  background-color: var(--background-secondary);
+  box-shadow: -2px 0 20px var(--background-modifier-box-shadow, rgba(0, 0, 0, 0.3));
 }
 
 /* Ribbons always visible on top */
@@ -71,7 +65,7 @@ body.is-hidden-frameless .workspace-split.mod-left-split.hide-sidebars-overlay-l
 }
 
 /* Virtual Collapse State for Overlay Mode */
-.hide-sidebars-hidden {
+.workspace-split.hide-sidebars-hidden {
   opacity: 0;
   visibility: hidden;
   pointer-events: none;

@@ -1,6 +1,6 @@
 import { App, PluginSettingTab, Setting } from 'obsidian';
 import type HideSidebarsPlugin from '../main';
-import { MAX_DELAY_MS } from './types';
+import { MAX_DELAY_MS, MAX_REVEAL_DELAY_MS } from './types';
 
 type SidebarSettingSide = 'left' | 'right';
 
@@ -43,6 +43,18 @@ export class HideSidebarsSettingTab extends PluginSettingTab {
 				.setValue(this.plugin.settings.showNotifications)
 				.onChange(async (value) => {
 					this.plugin.settings.showNotifications = value;
+					await this.plugin.saveSettings();
+				}));
+
+		new Setting(containerEl)
+			.setName('Reveal delay (ms)')
+			.setDesc(`How long the mouse must stay at the screen edge before a sidebar appears (0-${MAX_REVEAL_DELAY_MS}ms, default: 0ms).`)
+			.addSlider((slider) => slider
+				.setLimits(0, MAX_REVEAL_DELAY_MS, 25)
+				.setValue(this.plugin.settings.revealDelay)
+				.setDynamicTooltip()
+				.onChange(async (value) => {
+					this.plugin.settings.revealDelay = value;
 					await this.plugin.saveSettings();
 				}));
 

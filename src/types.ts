@@ -11,6 +11,7 @@ export interface HideSidebarsSettings {
 	rightTriggerPadding: number;
 	overlayMode: boolean;
 	delay: number;
+	revealDelay: number;
 	showNotifications: boolean;
 	leftPluginActive: boolean;
 	rightPluginActive: boolean;
@@ -33,11 +34,13 @@ export const DEFAULT_SETTINGS: HideSidebarsSettings = {
 	rightTriggerPadding: 100,
 	overlayMode: false,
 	delay: 50,
+	revealDelay: 0,
 	showNotifications: false,
 	leftPluginActive: true,
 	rightPluginActive: true,
 };
 
 export const MAX_DELAY_MS = 5000;
+export const MAX_REVEAL_DELAY_MS = 2000;
 export const THROTTLE_MS = 16;
 export const MIN_VERTICAL_TRIGGER_HEIGHT = 50;

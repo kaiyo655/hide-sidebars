@@ -15,6 +15,7 @@ export class SidebarController {
 	private settings: HideSidebarsSettings;
 	private plugin: HideSidebarsPluginHost;
 	private collapseTimer: number | null;
+	private expandTimer: number | null;
 
 	constructor(app: App, side: SidebarSide, settings: HideSidebarsSettings, plugin: HideSidebarsPluginHost) {
 		this.app = app;
@@ -22,6 +23,7 @@ export class SidebarController {
 		this.settings = settings;
 		this.plugin = plugin;
 		this.collapseTimer = null;
+		this.expandTimer = null;
 	}
 
 	get split(): SidebarSplit {
@@ -35,6 +37,11 @@ export class SidebarController {
 
 	get isExpanded(): boolean {
 		return !this.split.collapsed;
+	}
+
+	/** True when the sidebar is actually on screen (expanded and not virtually hidden by overlay mode). */
+	get isVisible(): boolean {
+		return this.isExpanded && !this.containerEl.classList.contains('hide-sidebars-hidden');
 	}
 
 	isEnabled(): boolean {
@@ -68,12 +75,48 @@ export class SidebarController {
 
 	applyOverlayClass(): void {
 		if (this.isActive() && this.settings.overlayMode) {
+			this.updateOverlayOffset();
 			this.containerEl.classList.add(this.overlayClass);
 		}
 	}
 
 	removeOverlayClass(): void {
 		this.containerEl.classList.remove('hide-sidebars-overlay-left', 'hide-sidebars-overlay-right');
+		this.containerEl.style.removeProperty('--hide-sidebars-offset');
+	}
+
+	/**
+	 * Called when the mouse enters the edge trigger zone.
+	 * Reveals the sidebar after `revealDelay` ms; an already visible sidebar just stays open.
+	 */
+	requestExpand(): void {
+		if (!this.isActive()) return;
+		this.cancelCollapse();
+
+		if (this.isVisible) {
+			this.cancelExpand();
+			return;
+		}
+
+		const delay = Math.max(0, this.settings.revealDelay);
+		if (delay === 0) {
+			this.expand();
+			return;
+		}
+
+		// Keep the first timer: continued mouse movement inside the zone must not restart the countdown.
+		if (this.expandTimer !== null) return;
+		this.expandTimer = window.setTimeout(() => {
+			this.expandTimer = null;
+			this.expand();
+		}, delay);
+	}
+
+	cancelExpand(): void {
+		if (this.expandTimer !== null) {
+			window.clearTimeout(this.expandTimer);
+			this.expandTimer = null;
+		}
 	}
 
 	expand(): void {
@@ -83,7 +126,7 @@ export class SidebarController {
 		this.containerEl.classList.remove('hide-sidebars-hidden');
 
 		if (this.settings.overlayMode) {
-			this.containerEl.classList.add(this.overlayClass);
+			this.applyOverlayClass();
 		} else {
 			this.removeOverlayClass();
 		}
@@ -93,6 +136,7 @@ export class SidebarController {
 		}
 
 		this.cancelCollapse();
+		this.cancelExpand();
 	}
 
 	scheduleCollapse(): void {
@@ -136,6 +180,7 @@ export class SidebarController {
 
 	toggle(): void {
 		this.cancelCollapse();
+		this.cancelExpand();
 
 		if (!this.isEnabled()) {
 			this.restoreNativeState(true);
@@ -155,6 +200,7 @@ export class SidebarController {
 
 	initializeFromSettings(): void {
 		this.cancelCollapse();
+		this.cancelExpand();
 
 		if (!this.isActive()) {
 			this.cleanup();
@@ -180,6 +226,7 @@ export class SidebarController {
 
 	syncOverlayMode(): void {
 		this.cancelCollapse();
+		this.cancelExpand();
 
 		if (!this.isActive()) {
 			this.containerEl.classList.remove('hide-sidebars-hidden');
@@ -207,6 +254,7 @@ export class SidebarController {
 
 	restoreNativeState(expandSidebar: boolean): void {
 		this.cancelCollapse();
+		this.cancelExpand();
 		this.containerEl.classList.remove('hide-sidebars-autohide', 'hide-sidebars-hidden');
 		this.removeOverlayClass();
 
@@ -225,6 +273,29 @@ export class SidebarController {
 
 	private getConfiguredWidth(): number {
 		return this.side === 'left' ? this.settings.leftSidebarWidth : this.settings.rightSidebarWidth;
+	}
+
+	/**
+	 * In overlay mode the split is absolutely positioned inside `.workspace`.
+	 * Offset it by the ribbon on the same side, if that ribbon is visible,
+	 * so the sidebar sits next to the ribbon instead of under it.
+	 */
+	private updateOverlayOffset(): void {
+		const parent = this.containerEl.parentElement;
+		const ribbon = parent?.querySelector<HTMLElement>(`:scope > .workspace-ribbon.mod-${this.side}`);
+		let offset = 0;
+
+		if (parent && ribbon) {
+			const parentRect = parent.getBoundingClientRect();
+			const ribbonRect = ribbon.getBoundingClientRect();
+			if (ribbonRect.width > 0) {
+				offset = this.side === 'left'
+					? ribbonRect.right - parentRect.left
+					: parentRect.right - ribbonRect.left;
+			}
+		}
+
+		this.containerEl.style.setProperty('--hide-sidebars-offset', `${Math.max(0, Math.round(offset))}px`);
 	}
 
 	private expandSplit(): void {

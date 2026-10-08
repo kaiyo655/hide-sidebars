@@ -159,12 +159,14 @@ export default class HideSidebarsPlugin extends Plugin {
 			const inSafe = this.isSafeZone('left', target);
 
 			if (inEdge) {
-				this.leftController.expand();
+				this.leftController.requestExpand();
 			} else if (inSafe) {
+				this.leftController.cancelExpand();
 				if (this.leftController.isExpanded || this.leftController.containerEl.classList.contains('hide-sidebars-overlay-left')) {
 					this.leftController.cancelCollapse();
 				}
 			} else {
+				this.leftController.cancelExpand();
 				this.leftController.scheduleCollapse();
 			}
 		}
@@ -177,12 +179,14 @@ export default class HideSidebarsPlugin extends Plugin {
 			const inSafe = this.isSafeZone('right', target);
 
 			if (inEdge) {
-				this.rightController.expand();
+				this.rightController.requestExpand();
 			} else if (inSafe) {
+				this.rightController.cancelExpand();
 				if (this.rightController.isExpanded || this.rightController.containerEl.classList.contains('hide-sidebars-overlay-right')) {
 					this.rightController.cancelCollapse();
 				}
 			} else {
+				this.rightController.cancelExpand();
 				this.rightController.scheduleCollapse();
 			}
 		}
