@@ -136,6 +136,14 @@ export default class HideSidebarsPlugin extends Plugin {
 	}
 
 	initEvents(): void {
+		// Obsidian recomputes tab-group classes on layout changes and resizes; re-apply overlay layout after it.
+		const refreshOverlay = () => {
+			this.leftController?.refreshOverlayLayout();
+			this.rightController?.refreshOverlayLayout();
+		};
+		this.registerEvent(this.app.workspace.on('layout-change', refreshOverlay));
+		this.registerEvent(this.app.workspace.on('resize', refreshOverlay));
+
 		this.registerDomEvent(window, 'mousemove', (e: MouseEvent) => {
 			const now = Date.now();
 			if (now - this.lastMouseMoveTime < THROTTLE_MS) return;

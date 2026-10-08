@@ -1,6 +1,9 @@
 import { App, Notice } from 'obsidian';
 import type { HideSidebarsPluginHost, HideSidebarsSettings, SidebarSide } from './types';
 
+const BASE_OVERLAY_Z_INDEX = 30;
+const FRAME_SPACE_MARKER = 'hide-sidebars-frame-space';
+
 interface SidebarSplit {
 	collapsed: boolean;
 	containerEl: HTMLElement;
@@ -289,6 +292,7 @@ export class SidebarController {
 		parent?.classList.add('hide-sidebars-overlay-host');
 
 		const offset = `${this.getRibbonOffset(parent)}px`;
+		this.updateRootFrameSpace(true);
 		this.containerEl.setCssStyles({
 			position: 'absolute',
 			top: '0',
@@ -296,14 +300,22 @@ export class SidebarController {
 			left: this.side === 'left' ? offset : '',
 			right: this.side === 'right' ? offset : '',
 			height: 'auto',
-			zIndex: '30',
+			zIndex: String(this.getOverlayZIndex(parent)),
 			// Opaque background: in translucent-window mode the sidebar background is transparent,
 			// which would let the editor show through the floating sidebar.
 			backgroundColor: 'var(--color-base-20, var(--background-secondary))',
 		});
 	}
 
+	/** Re-apply overlay layout after Obsidian changes the workspace (layout change, window resize). */
+	refreshOverlayLayout(): void {
+		if (this.containerEl.classList.contains(this.overlayClass)) {
+			this.applyOverlayLayout();
+		}
+	}
+
 	private clearOverlayLayout(): void {
+		this.updateRootFrameSpace(false);
 		this.containerEl.setCssStyles({
 			position: '',
 			top: '',
@@ -319,6 +331,59 @@ export class SidebarController {
 		if (parent && !parent.querySelector(':scope > .hide-sidebars-overlay-left, :scope > .hide-sidebars-overlay-right')) {
 			parent.classList.remove('hide-sidebars-overlay-host');
 		}
+	}
+
+	/**
+	 * Stack above the main area's tab bar. Some setups (macOS frameless window, card-style themes)
+	 * give that tab bar its own z-index; with an equal value the left sidebar, which comes first in
+	 * the DOM, would be painted underneath it.
+	 */
+	private getOverlayZIndex(parent: HTMLElement | null): number {
+		let max = BASE_OVERLAY_Z_INDEX - 1;
+		const candidates = parent?.querySelectorAll<HTMLElement>(
+			':scope > .mod-root, :scope > .mod-root .workspace-tab-header-container'
+		) ?? [];
+
+		for (const el of Array.from(candidates)) {
+			const z = parseInt(getComputedStyle(el).zIndex, 10);
+			if (!isNaN(z)) max = Math.max(max, z);
+		}
+
+		return max + 1;
+	}
+
+	/**
+	 * macOS frameless window: Obsidian moves the traffic-light spacing (`mod-top-left-space`) to the
+	 * main area's top-left tab group only when the left sidebar is natively collapsed. In overlay mode
+	 * the sidebar stays natively expanded, so add that spacing ourselves, otherwise the main tabs
+	 * end up under the window buttons while the sidebar is hidden.
+	 */
+	private updateRootFrameSpace(enable: boolean): void {
+		if (this.side !== 'left') return;
+
+		const root = this.app.workspace.rootSplit as unknown as { containerEl?: HTMLElement };
+		const rootEl = root.containerEl;
+		if (!rootEl) return;
+
+		for (const el of Array.from(rootEl.querySelectorAll<HTMLElement>(`.${FRAME_SPACE_MARKER}`))) {
+			el.classList.remove(FRAME_SPACE_MARKER, 'mod-top-left-space');
+		}
+
+		if (!enable) return;
+
+		let leftmost: HTMLElement | null = null;
+		let leftmostX = Infinity;
+		for (const tabs of Array.from(rootEl.querySelectorAll<HTMLElement>('.workspace-tabs.mod-top'))) {
+			const x = tabs.getBoundingClientRect().left;
+			if (x < leftmostX) {
+				leftmostX = x;
+				leftmost = tabs;
+			}
+		}
+
+		// Already spaced by Obsidian itself: leave it alone so we never remove a native class.
+		if (!leftmost || leftmost.classList.contains('mod-top-left-space')) return;
+		leftmost.classList.add('mod-top-left-space', FRAME_SPACE_MARKER);
 	}
 
 	/** Width of the visible ribbon on this side (0 when the ribbon is hidden or absent). */
