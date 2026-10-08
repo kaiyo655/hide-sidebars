@@ -304,6 +304,9 @@ export class SidebarController {
 			// Soft edge style paints a gradient wider than the sidebar; let it overflow.
 			overflow: this.settings.overlayStyle === 'soft' ? 'visible' : '',
 		});
+		this.containerEl.setCssProps({
+			'--hide-sidebars-header-height': `${this.getTopTabBarHeight()}px`,
+		});
 	}
 
 	/** Re-apply overlay layout after Obsidian changes the workspace (layout change, window resize). */
@@ -325,6 +328,7 @@ export class SidebarController {
 			zIndex: '',
 			overflow: '',
 		});
+		this.containerEl.setCssProps({ '--hide-sidebars-header-height': '' });
 
 		const parent = this.containerEl.parentElement;
 		if (parent && !parent.querySelector(':scope > .hide-sidebars-overlay-left, :scope > .hide-sidebars-overlay-right')) {
@@ -383,6 +387,12 @@ export class SidebarController {
 		// Already spaced by Obsidian itself: leave it alone so we never remove a native class.
 		if (!leftmost || leftmost.classList.contains('mod-top-left-space')) return;
 		leftmost.classList.add('mod-top-left-space', FRAME_SPACE_MARKER);
+	}
+
+	/** Height of the sidebar's top tab bar; the soft edge backdrop starts below it. */
+	private getTopTabBarHeight(): number {
+		const header = this.containerEl.querySelector<HTMLElement>('.workspace-tabs.mod-top .workspace-tab-header-container');
+		return header ? Math.max(0, Math.round(header.getBoundingClientRect().height)) : 0;
 	}
 
 	/** Width of the visible ribbon on this side (0 when the ribbon is hidden or absent). */
