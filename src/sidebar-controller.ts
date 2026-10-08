@@ -301,9 +301,6 @@ export class SidebarController {
 			right: this.side === 'right' ? offset : '',
 			height: 'auto',
 			zIndex: String(this.getOverlayZIndex(parent)),
-			// Opaque background: in translucent-window mode the sidebar background is transparent,
-			// which would let the editor show through the floating sidebar.
-			backgroundColor: 'var(--color-base-20, var(--background-secondary))',
 		});
 	}
 
@@ -324,7 +321,6 @@ export class SidebarController {
 			right: '',
 			height: '',
 			zIndex: '',
-			backgroundColor: '',
 		});
 
 		const parent = this.containerEl.parentElement;

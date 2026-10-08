@@ -16,7 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Overlay mode: the sidebar now floats over the editor instead of keeping its space in the layout.
 - Overlay mode: sidebar content no longer gets pushed into the lower half of the window (the resize handle was turned into a normal block element).
 - Overlay mode: the left sidebar now lines up with the ribbon's actual width, and with the window edge when the ribbon is hidden.
-- Overlay mode: layout is applied as inline styles so theme or frameless-window rules can no longer keep the sidebar in the layout; the floating sidebar gets an opaque background (fixes see-through headers with translucent window).
+- Overlay mode: layout is applied as inline styles so theme or frameless-window rules can no longer keep the sidebar in the layout; the floating sidebar gets an opaque backdrop that survives translucent window mode.
 - Overlay mode (macOS frameless window): the left sidebar now stacks above the main tab bar, and the main tabs keep clear of the window buttons while the sidebar is hidden.
 
 ## [1.0.1] - 2026-05-13

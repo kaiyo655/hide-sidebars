@@ -21,6 +21,24 @@
   box-shadow: -2px 0 20px var(--background-modifier-box-shadow, rgba(0, 0, 0, 0.3));
 }
 
+/*
+   Opaque backdrop for the floating sidebar.
+   In translucent-window mode Obsidian forces the left sidebar's own background
+   to transparent (so the desktop shows through), which would let the editor's
+   tab bar show through the overlay. A pseudo-element is painted above the
+   split's own background but below its content (the split is a stacking
+   context: positioned + z-index), so it is unaffected by that override.
+*/
+.hide-sidebars-overlay-left::before,
+.hide-sidebars-overlay-right::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background-color: var(--color-base-20, var(--background-secondary));
+  pointer-events: none;
+}
+
 /* Ribbons always visible on top */
 .hide-sidebars-autohide ~ .workspace-ribbon.mod-left,
 .hide-sidebars-autohide ~ .workspace-ribbon.mod-right {
