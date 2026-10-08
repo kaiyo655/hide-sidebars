@@ -75,14 +75,17 @@ export class SidebarController {
 
 	applyOverlayClass(): void {
 		if (this.isActive() && this.settings.overlayMode) {
-			this.updateOverlayOffset();
 			this.containerEl.classList.add(this.overlayClass);
+			this.applyOverlayLayout();
 		}
 	}
 
 	removeOverlayClass(): void {
+		const wasOverlay = this.containerEl.classList.contains(this.overlayClass);
 		this.containerEl.classList.remove('hide-sidebars-overlay-left', 'hide-sidebars-overlay-right');
-		this.containerEl.style.removeProperty('--hide-sidebars-offset');
+		if (wasOverlay) {
+			this.clearOverlayLayout();
+		}
 	}
 
 	/**
@@ -276,26 +279,61 @@ export class SidebarController {
 	}
 
 	/**
-	 * In overlay mode the split is absolutely positioned inside `.workspace`.
-	 * Offset it by the ribbon on the same side, if that ribbon is visible,
-	 * so the sidebar sits next to the ribbon instead of under it.
+	 * Overlay layout is written as inline styles on purpose: themes and Obsidian's
+	 * frameless-window rules target the sidebar with selectors of varying strength,
+	 * and inline styles beat all of them without resorting to !important.
+	 * The values are dynamic anyway (the offset depends on the ribbon's current width).
 	 */
-	private updateOverlayOffset(): void {
+	private applyOverlayLayout(): void {
 		const parent = this.containerEl.parentElement;
-		const ribbon = parent?.querySelector<HTMLElement>(`:scope > .workspace-ribbon.mod-${this.side}`);
-		let offset = 0;
+		parent?.classList.add('hide-sidebars-overlay-host');
 
-		if (parent && ribbon) {
-			const parentRect = parent.getBoundingClientRect();
-			const ribbonRect = ribbon.getBoundingClientRect();
-			if (ribbonRect.width > 0) {
-				offset = this.side === 'left'
-					? ribbonRect.right - parentRect.left
-					: parentRect.right - ribbonRect.left;
-			}
+		const offset = `${this.getRibbonOffset(parent)}px`;
+		this.containerEl.setCssStyles({
+			position: 'absolute',
+			top: '0',
+			bottom: '0',
+			left: this.side === 'left' ? offset : '',
+			right: this.side === 'right' ? offset : '',
+			height: 'auto',
+			zIndex: '30',
+			// Opaque background: in translucent-window mode the sidebar background is transparent,
+			// which would let the editor show through the floating sidebar.
+			backgroundColor: 'var(--color-base-20, var(--background-secondary))',
+		});
+	}
+
+	private clearOverlayLayout(): void {
+		this.containerEl.setCssStyles({
+			position: '',
+			top: '',
+			bottom: '',
+			left: '',
+			right: '',
+			height: '',
+			zIndex: '',
+			backgroundColor: '',
+		});
+
+		const parent = this.containerEl.parentElement;
+		if (parent && !parent.querySelector(':scope > .hide-sidebars-overlay-left, :scope > .hide-sidebars-overlay-right')) {
+			parent.classList.remove('hide-sidebars-overlay-host');
 		}
+	}
 
-		this.containerEl.style.setProperty('--hide-sidebars-offset', `${Math.max(0, Math.round(offset))}px`);
+	/** Width of the visible ribbon on this side (0 when the ribbon is hidden or absent). */
+	private getRibbonOffset(parent: HTMLElement | null): number {
+		const ribbon = parent?.querySelector<HTMLElement>(`:scope > .workspace-ribbon.mod-${this.side}`);
+		if (!parent || !ribbon) return 0;
+
+		const parentRect = parent.getBoundingClientRect();
+		const ribbonRect = ribbon.getBoundingClientRect();
+		if (ribbonRect.width <= 0) return 0;
+
+		const offset = this.side === 'left'
+			? ribbonRect.right - parentRect.left
+			: parentRect.right - ribbonRect.left;
+		return Math.max(0, Math.round(offset));
 	}
 
 	private expandSplit(): void {

@@ -2,37 +2,22 @@
 
 /*
    Overlay Mode
-   position: absolute floats the sidebar over content.
-   Selectors repeat Obsidian's own `.workspace-split.mod-*-split` classes so they
-   win over the core layout rules without needing !important.
+   Layout (position, insets, z-index, background) is set as inline styles by
+   sidebar-controller.ts so it cannot be overridden by theme selectors.
+   Only cosmetics live here.
    Do NOT change the position of the split's children: the resize handle is
    absolutely positioned by Obsidian, and turning it into a normal block pushes
    the sidebar content down to the lower half of the window.
 */
-.workspace:has(> .hide-sidebars-overlay-left),
-.workspace:has(> .hide-sidebars-overlay-right) {
+.hide-sidebars-overlay-host {
   position: relative;
 }
 
-.workspace-split.mod-left-split.hide-sidebars-overlay-left {
-  position: absolute;
-  left: var(--hide-sidebars-offset, 0px);
-  top: 0;
-  bottom: 0;
-  height: auto;
-  z-index: 30;
-  background-color: var(--background-secondary);
+.hide-sidebars-overlay-left {
   box-shadow: 2px 0 20px var(--background-modifier-box-shadow, rgba(0, 0, 0, 0.3));
 }
 
-.workspace-split.mod-right-split.hide-sidebars-overlay-right {
-  position: absolute;
-  right: var(--hide-sidebars-offset, 0px);
-  top: 0;
-  bottom: 0;
-  height: auto;
-  z-index: 30;
-  background-color: var(--background-secondary);
+.hide-sidebars-overlay-right {
   box-shadow: -2px 0 20px var(--background-modifier-box-shadow, rgba(0, 0, 0, 0.3));
 }
 
@@ -65,7 +50,7 @@ body.is-hidden-frameless .workspace-split.mod-left-split.hide-sidebars-overlay-l
 }
 
 /* Virtual Collapse State for Overlay Mode */
-.workspace-split.hide-sidebars-hidden {
+.hide-sidebars-autohide.hide-sidebars-hidden {
   opacity: 0;
   visibility: hidden;
   pointer-events: none;
